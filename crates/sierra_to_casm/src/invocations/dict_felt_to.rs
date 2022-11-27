@@ -30,7 +30,7 @@ pub fn build(
         DictFeltToConcreteLibFunc::New(_) => build_dict_felt_to_new(builder),
         DictFeltToConcreteLibFunc::Read(_) => build_dict_felt_to_read(builder),
         DictFeltToConcreteLibFunc::Write(_) => build_dict_felt_to_write(builder),
-        DictFeltToConcreteLibFunc::Squash(_) => todo!(),
+        DictFeltToConcreteLibFunc::Squash(_) => build_dict_felt_to_squash(builder),
     }
 }
 
@@ -187,6 +187,12 @@ fn build_dict_felt_to_write(
         vec![],
         [[dict_view.to_reference_expression()].into_iter()].into_iter(),
     ))
+}
+
+fn build_dict_felt_to_squash(
+    _builder: CompiledInvocationBuilder<'_>,
+) -> Result<CompiledInvocation, InvocationError> {
+    todo!()
 }
 
 /// A struct representing a dict in the Sierra program.
