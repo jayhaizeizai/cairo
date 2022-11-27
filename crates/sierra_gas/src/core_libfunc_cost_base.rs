@@ -76,6 +76,11 @@ pub fn core_libfunc_cost_base<Ops: CostOperations>(
         DictFeltTo(DictFeltToConcreteLibFunc::Write(_)) => {
             vec![ops.const_cost(4)]
         }
+        DictFeltTo(DictFeltToConcreteLibFunc::Squash(_)) => {
+            // The gas cost should be 0 and prepaid in dict_new, read and write.
+            // TODO(Gil): add the cost to new/read/write once the casm is added.
+            todo!()
+        }
     }
 }
 
