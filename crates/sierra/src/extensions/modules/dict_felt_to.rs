@@ -60,7 +60,7 @@ define_libfunc_hierarchy! {
         New(DictFeltToNewLibFunc),
         Read(DictFeltToReadLibFunc),
         Write(DictFeltToWriteLibFunc),
-        // TODO(Gil): Add DictFeltToSquash,
+        Squash(DictFeltToSquashLibFunc),
     }, DictFeltToConcreteLibFunc
 }
 
@@ -139,6 +139,30 @@ impl SignatureOnlyGenericLibFunc for DictFeltToReadLibFunc {
                     ref_info: OutputVarReferenceInfo::Deferred(DeferredOutputKind::Generic),
                 },
             ],
+            SierraApChange::Known(1),
+        ))
+    }
+}
+
+/// LibFunc for performing a `squash` opertaion on a dict. Returns a pointer to the squashed dict.
+#[derive(Default)]
+pub struct DictFeltToSquashLibFunc {}
+impl SignatureOnlyGenericLibFunc for DictFeltToSquashLibFunc {
+    const ID: GenericLibFuncId = GenericLibFuncId::new_inline("dict_felt_to_squash");
+
+    fn specialize_signature(
+        &self,
+        context: &dyn SignatureSpecializationContext,
+        args: &[GenericArg],
+    ) -> Result<LibFuncSignature, SpecializationError> {
+        let generic_ty = as_single_type(args)?;
+        let dict_ty = context.get_wrapped_concrete_type(DictFeltToType::id(), generic_ty)?;
+        Ok(LibFuncSignature::new_non_branch(
+            vec![dict_ty.clone()],
+            vec![OutputVarInfo {
+                ty: dict_ty,
+                ref_info: OutputVarReferenceInfo::Deferred(DeferredOutputKind::Generic),
+            }],
             SierraApChange::Known(1),
         ))
     }

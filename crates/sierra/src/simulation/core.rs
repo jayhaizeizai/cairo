@@ -190,6 +190,7 @@ pub fn simulate<
             [_, _, _] => Err(LibFuncSimulationError::MemoryLayoutMismatch),
             _ => Err(LibFuncSimulationError::WrongNumberOfArgs),
         },
+        CoreConcreteLibFunc::DictFeltTo(DictFeltToConcreteLibFunc::Squash(_)) => todo!(),
     }
 }
 

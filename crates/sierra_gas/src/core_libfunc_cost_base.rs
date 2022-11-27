@@ -76,6 +76,11 @@ pub fn core_libfunc_cost_base<Ops: CostOperations>(
         DictFeltTo(DictFeltToConcreteLibFunc::Write(_)) => {
             vec![ops.const_cost(4)]
         }
+        DictFeltTo(DictFeltToConcreteLibFunc::Squash(_)) => {
+            // TODO(Gil): add the cost of dict squash, it's complicated since it depands on the size
+            // of the dict, but maybe we want to just amortize it with read and write.
+            todo!()
+        }
     }
 }
 
