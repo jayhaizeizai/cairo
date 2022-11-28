@@ -41,8 +41,8 @@ pub fn get_core_ty_by_name(
     let core_module = db.core_module();
     // This should not fail if the corelib is present.
     let module_item_id = db
-        .module_item_by_name(core_module, name.clone())
-        .unwrap_or_else(|| panic!("Type '{name}' was not found in core lib."));
+        .module_item_by_name(core_module, name)
+        .expect("Type '{name}' was not found in core lib.");
     let generic_type = match module_item_id {
         ModuleItemId::Use(use_id) => {
             db.use_resolved_item(use_id).and_then(|resolved_generic_item| {
@@ -51,7 +51,7 @@ pub fn get_core_ty_by_name(
         }
         _ => GenericTypeId::option_from(module_item_id),
     }
-    .unwrap_or_else(|| panic!("{name} is not a type."));
+    .expect("'{name}' is not a type.");
 
     db.intern_type(semantic::TypeLongId::Concrete(semantic::ConcreteTypeId::new(
         db,
@@ -291,8 +291,8 @@ pub fn get_core_function_id(
 pub fn get_core_generic_function_id(db: &dyn SemanticGroup, name: SmolStr) -> GenericFunctionId {
     let core_module = db.core_module();
     let module_item_id = db
-        .module_item_by_name(core_module, name.clone())
-        .unwrap_or_else(|| panic!("Function '{name}' was not found in core lib."));
+        .module_item_by_name(core_module, name)
+        .expect("Function '{name}' was not found in core lib.");
     match module_item_id {
         ModuleItemId::Use(use_id) => {
             db.use_resolved_item(use_id).and_then(|resolved_generic_item| {
@@ -301,7 +301,7 @@ pub fn get_core_generic_function_id(db: &dyn SemanticGroup, name: SmolStr) -> Ge
         }
         _ => GenericFunctionId::option_from(module_item_id),
     }
-    .unwrap_or_else(|| panic!("{name} is not a function."))
+    .expect("'{name}' is not a function.")
 }
 
 pub fn concrete_copy_trait(db: &dyn SemanticGroup, ty: TypeId) -> ConcreteTraitId {
