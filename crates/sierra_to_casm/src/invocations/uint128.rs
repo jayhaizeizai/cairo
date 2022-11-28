@@ -43,6 +43,7 @@ pub fn build(
         Uint128Concrete::FromFelt(_) => build_uint128_from_felt(builder),
         Uint128Concrete::ToFelt(_) => misc::build_identity(builder),
         Uint128Concrete::LessThan(_) => build_uint128_lt(builder),
+        Uint128Concrete::Equal(_) => build_uint128_eq(builder),
         Uint128Concrete::LessThanOrEqual(_) => build_uint128_le(builder),
     }
 }
@@ -286,6 +287,41 @@ fn build_uint128_lt(
                 .into_iter()
             })
             .into_iter(),
+    ))
+}
+
+fn build_uint128_eq(
+    builder: CompiledInvocationBuilder<'_>,
+) -> Result<CompiledInvocation, InvocationError> {
+    let (a, b) = match builder.refs {
+        [
+            ReferenceValue { expression: expr_a, .. },
+            ReferenceValue { expression: expr_b, .. },
+        ] => (
+            try_unpack_deref(expr_a)?,
+            try_unpack_deref(expr_b)?,
+        ),
+        [_, _] => {return Err(InvocationError::InvalidReferenceExpressionForArgument);},
+        refs => {return Err(InvocationError::WrongNumberOfArguments
+            { expected: 2, actual: refs.len() });},
+    };
+    let target_statement_id = get_bool_comparison_target_statement_id(&builder);
+
+    let mut eq_code = casm! {
+        // [ap] = a - b
+        [fp + -3] = [ap + 0] + [fp + -4], ap++;
+
+        jmp rel 0 if [ap + 0] != 0, ap++;
+    };
+
+    let relocation_index = eq_code.instructions.len() - 1;
+    Ok(builder.build(
+        eq_code.instructions,
+        vec![RelocationEntry {
+            instruction_idx: relocation_index,
+            relocation: Relocation::RelativeStatementId(target_statement_id),
+        }],
+        vec![vec![].into_iter()].into_iter(),
     ))
 }
 

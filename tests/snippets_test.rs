@@ -62,6 +62,22 @@ fn setup(content: &str) -> RootDatabase {
     &[Some(BigInt::from(0))];
     "2 less than 1"
 )]
+#[test_case(
+    "func foo(a: uint128, b: uint128) -> bool {
+        uint128_eq(a, b)
+    }",
+    &[2, 1].map(BigInt::from),
+    &[Some(BigInt::from(0))];
+    "2 != 1"
+)]
+#[test_case(
+    "func foo(a: uint128, b: uint128) -> bool {
+        uint128_eq(a, b)
+    }",
+    &[1, 1].map(BigInt::from),
+    &[Some(BigInt::from(1))];
+    "1 == 1"
+)]
 fn run_function_test(content: &str, params: &[BigInt], expected: &[Option<BigInt>]) {
     let db = setup(content);
     let sierra_program = db.get_sierra_program().unwrap();

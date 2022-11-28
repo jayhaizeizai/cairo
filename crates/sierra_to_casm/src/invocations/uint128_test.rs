@@ -121,6 +121,35 @@ fn test_lt() {
 }
 
 #[test]
+fn test_eq() {
+    assert_eq!(
+        compile_libfunc(
+            "uint128_eq",
+            vec![ref_expr!([fp - 1]), ref_expr!([ap - 2])]
+        ),
+        ReducedCompiledInvocation {
+            instructions: casm! {
+                [fp + -3] = [ap + 0] + [fp + -4], ap++;
+                jmp rel 1 if [ap + 0] != 0, ap++;
+                ret;
+            }
+            .instructions,
+            relocations: Vec::new(),
+            results: vec![
+                ReducedBranchChanges {
+                    refs: Vec::new(),
+                    ap_change: ApChange::Known(1)
+                },
+                ReducedBranchChanges {
+                    refs: Vec::new(),
+                    ap_change: ApChange::Known(1)
+                }
+            ]
+        }
+    );
+}
+
+#[test]
 fn test_le() {
     assert_eq!(
         compile_libfunc(

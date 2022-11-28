@@ -197,6 +197,22 @@ use crate::test_utils::{build_metadata, read_sierra_example_file, strip_comments
                 [ap + 0] = [fp + -5] + 1, ap++;
                 ret;
             "}; "uint128_lt")]
+#[test_case(indoc!{"
+                type uint128 = uint128;
+
+                libfunc revoke_ap_tracking = revoke_ap_tracking;
+                libfunc uint128_eq = uint128_eq;
+
+                revoke_ap_tracking() -> ();
+                uint128_eq([1], [2]) {fallthrough() 2() };
+                return ();
+
+                test_program@0([1]: uint128, [2]: uint128) -> ();
+            "}, &[], false, indoc!{"
+                [fp + -3] = [ap + 0] + [fp + -4], ap++;
+                jmp rel 1 if [ap + 0] != 0, ap++;
+                ret;
+            "}; "uint128_eq")]
 #[test_case(indoc! {"
                 type uint128 = uint128;
                 type RangeCheck = RangeCheck;
@@ -389,14 +405,14 @@ use crate::test_utils::{build_metadata, read_sierra_example_file, strip_comments
                 [ap + 0] = 10, ap++;
                 [ap + 0] = 11, ap++;
                 [ap + 0] = 12, ap++;
-                %{ 
+                %{
                 if '__dict_manager' not in globals():
                     from starkware.cairo.common.dict import DictManager
                     __dict_manager = DictManager()
                 memory[ap + 0] = __dict_manager.new_default_dict(segments, memory[ap + -1])
                  %}
                 ap += 1;
-                %{ 
+                %{
                 dict_tracker = __dict_manager.get_tracker(memory[ap + -1] + 0)
                 dict_tracker.current_ptr += 3
                 memory[ap + 0] = dict_tracker.data[memory[ap + -4]]
@@ -408,7 +424,7 @@ use crate::test_utils::{build_metadata, read_sierra_example_file, strip_comments
                 [ap + -4] = [[ap + -2] + 2];
                 [ap + 0] = 10, ap++;
                 [ap + 0] = 13, ap++;
-                %{ 
+                %{
                 dict_tracker = __dict_manager.get_tracker(memory[ap + -4] + 3)
                 dict_tracker.current_ptr += 3
                 memory[ap + 0] = dict_tracker.data[memory[ap + -2]]
@@ -419,7 +435,7 @@ use crate::test_utils::{build_metadata, read_sierra_example_file, strip_comments
                 [ap + -1] = [[ap + -5] + 4];
                 [ap + -2] = [[ap + -5] + 5];
                 [ap + 0] = 10, ap++;
-                %{ 
+                %{
                 dict_tracker = __dict_manager.get_tracker(memory[ap + -6] + 6)
                 dict_tracker.current_ptr += 3
                 memory[ap + 0] = dict_tracker.data[memory[ap + -1]]
